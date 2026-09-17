@@ -2,86 +2,48 @@
 
 ## 1. Começando o trabalho
 
-Para começar o trabalho, primeiro foi criada uma máquina virtual usando o **Lubuntu**. Depois disso, foi configurado o acesso por SSH para conseguir acessar a máquina pelo terminal sem precisar ficar usando diretamente a máquina virtual.
+Para começar o trabalho, foi criada uma máquina virtual utilizando o **Lubuntu**.
 
-Primeiro atualizei os pacotes:
+A ideia inicial era também configurar o acesso remoto utilizando SSH, porém essa parte não pôde ser realizada por causa dos **bloqueios e restrições de rede da instituição**. Por esse motivo, o trabalho foi continuado diretamente pela máquina virtual.
 
-```bash
+Depois da criação da máquina virtual, comecei preparando o sistema:
+
+```terminal da maquina
 sudo apt update
 sudo apt upgrade -y
-```
-
-Depois instalei o SSH:
-
-```bash
-sudo apt install openssh-server -y
-```
-
-Para conferir se o SSH estava funcionando:
-
-```bash
-sudo systemctl status ssh
-```
-
-Se aparecer `active (running)`, significa que o serviço está funcionando.
-
-Para descobrir o IP da máquina virtual usei:
-
-```bash
-hostname -I
-```
-
-Com o IP em mãos, é possível entrar na máquina pelo outro computador usando:
-
-```bash
-ssh usuario@IP_DA_MAQUINA
-```
-
-Por exemplo:
-
-```bash
-ssh aluno@192.168.1.100
 ```
 
 ---
 
 ## 2. Instalando o Docker
 
-Depois de configurar o SSH, comecei a instalação do Docker.
+Depois de atualizar o sistema, foi feita a instalação do Docker:
 
-Primeiro atualizei os pacotes:
-
-```bash
-sudo apt update
-```
-
-Depois instalei o Docker:
-
-```bash
+```terminal da maquina
 sudo apt install docker.io -y
 ```
 
-Para conferir se foi instalado:
+Depois conferi se a instalação tinha funcionado:
 
-```bash
+```terminal da maquina
 docker --version
 ```
 
-Também verifiquei se o serviço estava funcionando:
+Também verifiquei o serviço do Docker:
 
-```bash
+```terminal da maquina
 sudo systemctl status docker
 ```
 
-Caso o Docker não esteja iniciado, podemos iniciar com:
+Caso o serviço não estivesse iniciado, poderia ser iniciado com:
 
-```bash
+```terminal da maquina
 sudo systemctl start docker
 ```
 
-E deixar configurado para iniciar junto com o sistema:
+E para deixar o Docker iniciando automaticamente:
 
-```bash
+```terminal da maquina
 sudo systemctl enable docker
 ```
 
@@ -89,28 +51,30 @@ sudo systemctl enable docker
 
 ## 3. Primeiro teste com Docker
 
-Antes de começar a aplicação, fiz um teste simples para verificar se o Docker estava funcionando:
+Antes de criar a aplicação, fiz um teste simples para conferir se o Docker estava funcionando:
 
-```bash
+```terminal da maquina
 sudo docker run hello-world
 ```
 
-O Docker baixa uma imagem de teste e executa um container. Se aparecer a mensagem de confirmação, a instalação está funcionando.
+Esse comando baixa uma imagem de teste e executa um container.
+
+Se a mensagem de confirmação aparecer no terminal, significa que o Docker está funcionando corretamente.
 
 ---
 
 ## 4. Criando a aplicação Flask
 
-Depois disso, criei uma pasta para guardar o projeto:
+Depois disso, criei uma pasta para o projeto:
 
-```bash
-mkdir introducao-docker
-cd introducao-docker
+```terminal da maquina
+mkdir projeto-flask
+cd projeto-flask
 ```
 
-Dentro dela criei o arquivo `app.py`:
+Dentro da pasta, criei o arquivo `app.py`:
 
-```bash
+```terminal da maquina
 nano app.py
 ```
 
@@ -129,11 +93,9 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
 ```
 
-Salvei o arquivo e saí do `nano`.
+Depois criei o arquivo `requirements.txt`:
 
-Depois criei o `requirements.txt`:
-
-```bash
+```terminal da maquina
 nano requirements.txt
 ```
 
@@ -143,10 +105,10 @@ E coloquei:
 Flask
 ```
 
-Nesse momento, a pasta ficou assim:
+Até aqui, a estrutura ficou:
 
 ```text
-introducao-docker/
+projeto-flask/
 ├── app.py
 └── requirements.txt
 ```
@@ -155,9 +117,9 @@ introducao-docker/
 
 ## 5. Criando o Dockerfile
 
-Agora criei o arquivo que será usado pelo Docker para montar a imagem:
+Agora criei o arquivo `Dockerfile`:
 
-```bash
+```terminal da maquina
 nano Dockerfile
 ```
 
@@ -179,134 +141,133 @@ EXPOSE 5000
 CMD ["python", "app.py"]
 ```
 
-A imagem `python:3.14-slim` é obrigatória neste trabalho, por isso ela foi utilizada na primeira linha do Dockerfile.
+A imagem `python:3.14-slim` foi utilizada porque ela é uma exigência do trabalho.
 
 ---
 
-## 6. Criando a imagem
+## 6. Criando a imagem Docker
 
-Com os arquivos prontos, fiz a construção da imagem:
+Com os arquivos prontos, criei a imagem usando:
 
-```bash
-sudo docker build -t introducao-flask .
+```terminal da maquina
+sudo docker build -t projeto-flask .
 ```
 
-Depois conferi se ela tinha sido criada:
+Depois conferi as imagens disponíveis:
 
-```bash
+```terminal da maquina
 sudo docker images
 ```
 
-A imagem `introducao-flask` deve aparecer na lista.
+A imagem `projeto-flask` deve aparecer na lista.
 
 ---
 
 ## 7. Executando o container
 
-Agora podemos criar o container usando a imagem que acabamos de criar:
+Depois de criar a imagem, executei o container com:
 
-```bash
-sudo docker run -d -p 5000:5000 --name introducao-flask-container introducao-flask
+```terminal da maquina
+sudo docker run -d -p 5000:5000 --name projeto-flask-container projeto-flask
 ```
 
-Para conferir se ele está rodando:
+Para verificar se ele está funcionando:
 
-```bash
+```terminal da maquina
 sudo docker ps
 ```
 
-Se o container aparecer na lista, está funcionando.
+Se o container aparecer na lista, ele está rodando.
 
 ---
 
 ## 8. Testando a aplicação
 
-Para acessar a aplicação na própria máquina:
+Como a aplicação está usando a porta `5000`, podemos acessá-la pelo navegador através de:
 
 ```text
 http://localhost:5000
 ```
 
-Se for acessar de outro computador da mesma rede, podemos usar o IP da máquina virtual:
-
-```text
-http://IP_DA_MAQUINA:5000
-```
-
-Por exemplo:
-
-```text
-http://192.168.1.100:5000
-```
-
-Ao acessar a página, deverá aparecer:
+A página deverá mostrar:
 
 **Minha primeira aplicação Flask**
 
 ---
 
-## 9. Alguns comandos que usei
+## 9. Alguns comandos utilizados
 
-Durante o trabalho, alguns comandos são úteis para controlar os containers.
+Durante a atividade, alguns comandos foram úteis para verificar e controlar o Docker.
 
-Para ver os containers rodando:
+### Ver os containers em execução
 
-```bash
+```terminal da maquina
 sudo docker ps
 ```
 
-Para ver todos os containers:
+### Ver todos os containers
 
-```bash
+```terminal da maquina
 sudo docker ps -a
 ```
 
-Para parar o container:
+### Parar o container
 
-```bash
-sudo docker stop introducao-flask-container
+```terminal da maquina
+sudo docker stop projeto-flask-container
 ```
 
-Para iniciar novamente:
+### Iniciar novamente
 
-```bash
-sudo docker start introducao-flask-container
+```terminal da maquina
+sudo docker start projeto-flask-container
 ```
 
-Para ver os logs:
+### Ver os logs
 
-```bash
-sudo docker logs introducao-flask-container
+```terminal da maquina
+sudo docker logs projeto-flask-container
 ```
 
-Para ver as imagens:
+### Ver as imagens
 
-```bash
+```terminal da maquina
 sudo docker images
+```
+
+### Remover o container
+
+```terminal da maquina
+sudo docker rm projeto-flask-container
 ```
 
 ---
 
 ## 10. Resultado
 
-Depois desses passos, a aplicação Flask já está funcionando dentro de um container Docker.
+Ao final dessa primeira etapa, a aplicação Flask está funcionando dentro de um container Docker.
 
 A estrutura do projeto ficou:
 
 ```text
-introducao-docker/
+projeto-flask/
 ├── app.py
 ├── requirements.txt
 └── Dockerfile
 ```
 
-Essa é a primeira parte do trabalho. A partir dela, a aplicação poderá ser modificada para receber **novas páginas, layouts diferentes e títulos diferentes**, além das outras partes que serão desenvolvidas no projeto.
+A etapa de acesso remoto por SSH não foi realizada devido aos **bloqueios de rede da instituição**. Por isso, as configurações e comandos do Docker foram realizados diretamente dentro da máquina virtual.
 
-**Tecnologias usadas até aqui:**
+A partir dessa primeira aplicação, o projeto poderá continuar com a criação de **novas páginas, layouts diferentes e títulos distintos**.
+
+## Tecnologias utilizadas
 
 - Lubuntu
-- SSH
 - Docker
 - Python
 - Flask
 - `python:3.14-slim`
+
+## Referencias
+
+- Repositório do GitHub do professor
