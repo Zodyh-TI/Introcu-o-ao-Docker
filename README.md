@@ -268,6 +268,6 @@ A partir dessa primeira aplicação, o projeto poderá continuar com a criação
 - Flask
 - `python:3.14-slim`
 
-## Referencias
+## Referências
 
 - Repositório do GitHub do professor
